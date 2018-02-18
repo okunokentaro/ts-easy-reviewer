@@ -1,0 +1,6 @@
+[package]
+name = "ts_easy_reviewer"
+version = "0.1.0"
+authors = ["OKUNOKENTARO <okunokentaro@me.com>"]
+
+[dependencies]
