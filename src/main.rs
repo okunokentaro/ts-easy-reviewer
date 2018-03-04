@@ -3,12 +3,9 @@ extern crate docopt;
 extern crate serde_derive;
 extern crate toml;
 
-use std::env;
-use std::io::{self, BufRead, BufReader};
-use std::fs::{self, DirEntry, File};
-use std::path::{Path, PathBuf};
+use std::{env, io, path, fs};
+use std::io::BufRead;
 use docopt::Docopt;
-use toml::Value as Toml;
 
 const USAGE: &'static str = "
 Usage:
@@ -29,7 +26,7 @@ struct Args {
     flag_version: bool,
 }
 
-fn visit_dirs(dir: &Path, cb: &Fn(&DirEntry)) -> io::Result<()> {
+fn visit_dirs(dir: &path::Path, cb: &Fn(&fs::DirEntry)) -> io::Result<()> {
     if dir.is_dir() {
         for entry in fs::read_dir(dir)? {
             let entry = entry?;
@@ -44,52 +41,52 @@ fn visit_dirs(dir: &Path, cb: &Fn(&DirEntry)) -> io::Result<()> {
     Ok(())
 }
 
-fn read_file(path: &Path) -> String {
-    let mut buf_file = BufReader::new(File::open(path).unwrap());
+fn read_file(path: &path::Path) -> io::Result<String> {
+    fs::File::open(path).and_then(|file| {
+        let mut buf_file = io::BufReader::new(file);
 
-    let mut buffer = String::new();
-    loop {
-        match buf_file.read_line(&mut buffer) {
-            Ok(0) => break, // EOF
-            Ok(_) => continue,
-            Err(e) => {
-                println!("{}", e);
-                break;
+        let mut buffer = String::new();
+        loop {
+            match buf_file.read_line(&mut buffer) {
+                Ok(0) => break, // EOF
+                Ok(_) => continue,
+                Err(e) => {
+                    return Err(e)
+                }
             }
         }
-    }
 
-    buffer
+        Ok(buffer)
+    })
 }
 
-fn get_config_path() -> Result<String, String> {
-    env::current_dir()
-        .map_err(|_| {
-            "error".to_string()
+fn get_config_path() -> io::Result<path::PathBuf> {
+    let buf_pwd = env::current_dir()?;
+    Ok(buf_pwd.join("config.toml"))
+}
+
+fn read_config_file() -> Result<toml::Value, String> {
+    get_config_path()
+        .and_then(|path_base| {
+            let config_file_path = path::Path::new(&path_base);
+            read_file(&config_file_path)
         })
-        .and_then(|dir| {
-            dir.to_str().map(|x| x.to_string()).ok_or("error".to_string())
+        .map_err(|e| {
+            e.to_string()
         })
-        .map(|pwd| {
-            let config_filename = "/config.toml".to_string();
-            [pwd, config_filename].join("")
+        .and_then(|result| {
+            toml::from_str(&result).map_err(|e| {
+                e.to_string()
+            })
         })
 }
 
-fn read_config_file() -> Toml {
-    let path_base = get_config_path().unwrap();
-    let config_file_path = Path::new(&path_base);
-    let result = read_file(&config_file_path);
-
-    toml::from_str(&result).unwrap()
-}
-
-fn get_path_string(path: &PathBuf) -> String {
+fn get_path_string(path: &path::PathBuf) -> String {
     path.clone().into_os_string().into_string().unwrap()
 }
 
 fn scan_files() {
-    visit_dirs(Path::new("./"), &|entry: &DirEntry| {
+    visit_dirs(path::Path::new("./"), &|entry: &fs::DirEntry| {
         let buf_path = entry.path();
         let path_string = get_path_string(&buf_path);
 
@@ -99,14 +96,15 @@ fn scan_files() {
             return;
         }
 
-        let result = read_file(&buf_path);
+        let result = read_file(&buf_path).unwrap();
 
+        println!("{:?}", &buf_path);
         println!("{}", result);
     }).unwrap();
 }
 
 fn main() {
-    let config = read_config_file();
+    let config = read_config_file().unwrap();
 
     println!("{:?}", config);
 
