@@ -60,17 +60,7 @@ fn read_config_file() -> Toml {
     toml::from_str(result.as_str()).unwrap()
 }
 
-fn main() {
-    let config = read_config_file();
-
-    println!("{:?}", config);
-
-    let args: Args = Docopt::new(USAGE)
-        .and_then(|d| d.deserialize())
-        .unwrap_or_else(|e| e.exit());
-    println!("args.arg_path: {:?}", args.arg_path);
-    println!("args.flag_version: {:?}", args.flag_version);
-
+fn scan_files() {
     visit_dirs(Path::new("./"), &|entry: &DirEntry| {
         let mut input = String::new();
 
@@ -83,4 +73,18 @@ fn main() {
         }).unwrap();
         println!("{}", input);
     }).unwrap();
+}
+
+fn main() {
+    let config = read_config_file();
+
+    println!("{:?}", config);
+
+    let args: Args = Docopt::new(USAGE)
+        .and_then(|d| d.deserialize())
+        .unwrap_or_else(|e| e.exit());
+    println!("args.arg_path: {:?}", args.arg_path);
+    println!("args.flag_version: {:?}", args.flag_version);
+
+    scan_files()
 }
