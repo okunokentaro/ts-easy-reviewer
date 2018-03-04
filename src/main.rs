@@ -42,22 +42,26 @@ fn visit_dirs(dir: &Path, cb: &Fn(&DirEntry)) -> io::Result<()> {
     Ok(())
 }
 
-fn main() {
+fn read_toml_file() -> String {
     let pwd_buf = env::current_dir().unwrap();
-    let pwd_string = pwd_buf.to_str().unwrap().to_string();
-    println!("{}", pwd_string);
+    let pwd = pwd_buf.to_str().unwrap().to_string();
+    let config_filename = String::from("/config.toml");
 
-    let path_base = [pwd_string, String::from("/config.toml")].join("");
+    let path_base = [pwd, config_filename].join("");
     let config_file_path = Path::new(&path_base);
 
-    println!("{:?}", config_file_path);
-
-    let mut input = String::new();
+    let mut result = String::new();
     File::open(&config_file_path).and_then(|mut f| {
-        f.read_to_string(&mut input)
+        f.read_to_string(&mut result)
     }).unwrap();
 
-    println!("{}", input);
+    result
+}
+
+fn main() {
+    let toml = read_toml_file();
+
+    println!("{:?}", toml);
 
     let args: Args = Docopt::new(USAGE)
         .and_then(|d| d.deserialize())
