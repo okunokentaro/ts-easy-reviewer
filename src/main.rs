@@ -71,7 +71,16 @@ fn main() {
     println!("args.arg_path: {:?}", args.arg_path);
     println!("args.flag_version: {:?}", args.flag_version);
 
-    visit_dirs(Path::new("./"), &|v| {
-        println!("L34 {:?}", v);
+    visit_dirs(Path::new("./"), &|entry: &DirEntry| {
+        let mut input = String::new();
+
+        let path_string = entry.path().into_os_string().into_string().unwrap();
+        if path_string.contains(".DS_Store") {
+            return;
+        }
+        File::open(&entry.path()).and_then(|mut f| {
+            f.read_to_string(&mut input)
+        }).unwrap();
+        println!("{}", input);
     }).unwrap();
 }
