@@ -62,12 +62,22 @@ fn read_file(path: &Path) -> String {
     buffer
 }
 
-fn read_config_file() -> Toml {
-    let buf_pwd = env::current_dir().unwrap();
-    let pwd = buf_pwd.to_str().unwrap();
-    let config_filename = "/config.toml";
+fn get_config_path() -> Result<String, String> {
+    env::current_dir()
+        .map_err(|_| {
+            "error".to_string()
+        })
+        .and_then(|dir| {
+            dir.to_str().map(|x| x.to_string()).ok_or("error".to_string())
+        })
+        .map(|pwd| {
+            let config_filename = "/config.toml".to_string();
+            [pwd, config_filename].join("")
+        })
+}
 
-    let path_base = [pwd, config_filename].join("");
+fn read_config_file() -> Toml {
+    let path_base = get_config_path().unwrap();
     let config_file_path = Path::new(&path_base);
     let result = read_file(&config_file_path);
 
