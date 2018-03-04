@@ -1,12 +1,14 @@
 extern crate docopt;
 #[macro_use]
 extern crate serde_derive;
+extern crate toml;
 
 use std::env;
 use std::io::{self, Read};
 use std::fs::{self, DirEntry, File};
 use std::path::Path;
 use docopt::Docopt;
+use toml::Value as Toml;
 
 const USAGE: &'static str = "
 Usage:
@@ -42,7 +44,7 @@ fn visit_dirs(dir: &Path, cb: &Fn(&DirEntry)) -> io::Result<()> {
     Ok(())
 }
 
-fn read_toml_file() -> String {
+fn read_config_file() -> Toml {
     let pwd_buf = env::current_dir().unwrap();
     let pwd = pwd_buf.to_str().unwrap().to_string();
     let config_filename = String::from("/config.toml");
@@ -55,13 +57,13 @@ fn read_toml_file() -> String {
         f.read_to_string(&mut result)
     }).unwrap();
 
-    result
+    toml::from_str(result.as_str()).unwrap()
 }
 
 fn main() {
-    let toml = read_toml_file();
+    let config = read_config_file();
 
-    println!("{:?}", toml);
+    println!("{:?}", config);
 
     let args: Args = Docopt::new(USAGE)
         .and_then(|d| d.deserialize())
