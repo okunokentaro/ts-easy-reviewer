@@ -4,9 +4,9 @@ extern crate serde_derive;
 extern crate toml;
 
 use std::env;
-use std::io::{self, Read};
+use std::io::{self, BufRead, BufReader};
 use std::fs::{self, DirEntry, File};
-use std::path::Path;
+use std::path::{Path, PathBuf};
 use docopt::Docopt;
 use toml::Value as Toml;
 
@@ -44,34 +44,54 @@ fn visit_dirs(dir: &Path, cb: &Fn(&DirEntry)) -> io::Result<()> {
     Ok(())
 }
 
+fn read_file(path: &Path) -> String {
+    let mut buf_file = BufReader::new(File::open(path).unwrap());
+
+    let mut buffer = String::new();
+    loop {
+        match buf_file.read_line(&mut buffer) {
+            Ok(0) => break, // EOF
+            Ok(_) => continue,
+            Err(e) => {
+                println!("{}", e);
+                break;
+            }
+        }
+    }
+
+    buffer
+}
+
 fn read_config_file() -> Toml {
-    let pwd_buf = env::current_dir().unwrap();
-    let pwd = pwd_buf.to_str().unwrap().to_string();
-    let config_filename = String::from("/config.toml");
+    let buf_pwd = env::current_dir().unwrap();
+    let pwd = buf_pwd.to_str().unwrap();
+    let config_filename = "/config.toml";
 
     let path_base = [pwd, config_filename].join("");
     let config_file_path = Path::new(&path_base);
+    let result = read_file(&config_file_path);
 
-    let mut result = String::new();
-    File::open(&config_file_path).and_then(|mut f| {
-        f.read_to_string(&mut result)
-    }).unwrap();
+    toml::from_str(&result).unwrap()
+}
 
-    toml::from_str(result.as_str()).unwrap()
+fn get_path_string(path: &PathBuf) -> String {
+    path.clone().into_os_string().into_string().unwrap()
 }
 
 fn scan_files() {
     visit_dirs(Path::new("./"), &|entry: &DirEntry| {
-        let mut input = String::new();
+        let buf_path = entry.path();
+        let path_string = get_path_string(&buf_path);
 
-        let path_string = entry.path().into_os_string().into_string().unwrap();
         if path_string.contains(".DS_Store") {
             return;
+        } else if !path_string.contains(".ts") {
+            return;
         }
-        File::open(&entry.path()).and_then(|mut f| {
-            f.read_to_string(&mut input)
-        }).unwrap();
-        println!("{}", input);
+
+        let result = read_file(&buf_path);
+
+        println!("{}", result);
     }).unwrap();
 }
 
