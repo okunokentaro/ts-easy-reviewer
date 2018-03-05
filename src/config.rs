@@ -31,7 +31,5 @@ fn read_config(mut dir: path::PathBuf) -> Result<Config> {
 pub fn get_config() -> Result<Config> {
     env::current_dir()
         .map_err(|e| e.to_string())
-        .and_then(|pwd| {
-            read_config(pwd)
-        })
+        .and_then(|pwd| read_config(pwd))
 }

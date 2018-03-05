@@ -1,4 +1,4 @@
-use std::{fs, path, io};
+use std::{fs, io, path};
 use std::io::BufRead;
 
 pub fn read_file(path: &path::Path) -> io::Result<String> {

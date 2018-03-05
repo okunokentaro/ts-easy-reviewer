@@ -1,8 +1,8 @@
+extern crate docopt;
 #[macro_use]
 extern crate serde_derive;
-extern crate ts_easy_reviewer;
-extern crate docopt;
 extern crate toml;
+extern crate ts_easy_reviewer;
 
 use docopt::Docopt;
 use ts_easy_reviewer::config::get_config;

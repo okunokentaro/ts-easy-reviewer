@@ -3,3 +3,9 @@ name = "rule1"
 implements = "Foo"
 and_if_includes = "Bar"
 then = "error"
+
+[[rules]]
+name = "rule2"
+implements = "Hoge"
+and_if_includes = "Fuga"
+then = "error"
