@@ -1,6 +1,7 @@
 extern crate toml;
 use std::{env, path, result};
 use reader::read_file;
+use path::get_path_string;
 
 type Result<T> = result::Result<T, String>;
 
@@ -15,12 +16,18 @@ pub struct Config {
     pub rules: Option<Vec<Rule>>,
 }
 
-fn read_config(mut dir: path::PathBuf) -> Result<Config> {
+fn read_config(dir: path::PathBuf) -> Result<Config> {
+    let mut dir = dir.canonicalize().unwrap();
     let config_file_path = dir.join("config.toml");
+
     match read_file(&config_file_path) {
         Ok(val) => toml::from_str(&val).map_err(|e| e.to_string()),
         Err(_) => {
             dir.pop();
+            if get_path_string(&dir) == "/" {
+                println!("Nothing");
+                return Err("Nothing".to_string());
+            }
             read_config(dir)
         }
     }

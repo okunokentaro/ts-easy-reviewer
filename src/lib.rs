@@ -3,6 +3,7 @@ extern crate regex;
 extern crate serde_derive;
 
 pub mod config;
+pub mod path;
 pub mod reader;
 pub mod reviewer;
 pub mod rule;

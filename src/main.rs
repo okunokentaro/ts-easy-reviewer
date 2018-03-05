@@ -5,6 +5,7 @@ extern crate toml;
 extern crate ts_easy_reviewer;
 
 use docopt::Docopt;
+use std::process::exit;
 use ts_easy_reviewer::config::get_config;
 use ts_easy_reviewer::reviewer::review_files;
 use ts_easy_reviewer::rule::get_rules;
@@ -35,9 +36,11 @@ fn main() {
 
     let path_string = Some(args.arg_path);
 
-    let config = get_config(&path_string).unwrap();
-    println!("args.flag_version: {:?}", args.flag_version);
-
-    let rules = get_rules(config);
-    review_files(path_string, rules)
+    get_config(&path_string)
+        .and_then(|config| {
+            let rules = get_rules(config);
+            review_files(path_string, rules).map_err(|e| e.to_string())
+        })
+        .unwrap_or_else(|_| exit(1));
+    exit(0);
 }

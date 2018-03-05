@@ -1,5 +1,6 @@
 use std::{fs, io, path};
 use reader::read_file;
+use path::get_path_string;
 use rule::Rule;
 
 fn visit_dirs(
@@ -21,11 +22,7 @@ fn visit_dirs(
     Ok(())
 }
 
-fn get_path_string(path: &path::PathBuf) -> String {
-    path.clone().into_os_string().into_string().unwrap()
-}
-
-pub fn review_files(path_string: Option<String>, rules: Vec<Rule>) {
+pub fn review_files(path_string: Option<String>, rules: Vec<Rule>) -> io::Result<()> {
     let path_string_ref = path_string.unwrap();
     let path = path::Path::new(&path_string_ref);
 
@@ -39,10 +36,12 @@ pub fn review_files(path_string: Option<String>, rules: Vec<Rule>) {
             return;
         }
 
-        let result = read_file(&buf_path).unwrap();
+        let code = read_file(&buf_path).unwrap();
 
         for rule in rules {
-            rule.check(&result);
+            rule.check(&buf_path, &code);
         }
     }).unwrap();
+
+    Ok(())
 }

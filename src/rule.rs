@@ -1,3 +1,4 @@
+use std::path;
 use regex::Regex;
 use config;
 use statement_parser::parse;
@@ -14,7 +15,7 @@ impl Rule {
         Rule { name, tokens }
     }
 
-    pub fn check(&self, code: &str) {
+    pub fn check(&self, file_path: &path::PathBuf, code: &str) {
         if self.tokens[0] == "class_implements" {
             let implements = &self.tokens[1];
             let context_re = Regex::new(&["implements ", implements].join("")).unwrap();
@@ -26,7 +27,7 @@ impl Rule {
                         let target_re = Regex::new(target).unwrap();
                         let includes_target = target_re.is_match(code);
                         if includes_target && self.tokens[6] == "error" {
-                            println!("REJECT!!!!!");
+                            println!("{} REJECT!!!!!", file_path.display());
                         }
                     }
                     _ => (),
@@ -44,7 +45,7 @@ impl Rule {
                         let target_re = Regex::new(&["^import.*", target].join("")).unwrap();
                         let includes_target = target_re.is_match(code);
                         if includes_target && self.tokens[6] == "error" {
-                            println!("REJECT!!!!!");
+                            println!("{} REJECT!!!!!", file_path.display());
                         }
                     }
                     _ => (),
