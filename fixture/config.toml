@@ -1,5 +1,5 @@
 [[rules]]
 name = "rule1"
-includes = "extends Foo"
+implements = "Foo"
 and_if_includes = "Bar"
 then = "error"

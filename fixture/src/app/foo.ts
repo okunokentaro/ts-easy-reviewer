@@ -1,1 +1,1 @@
-export class Foo {}
+export interface Foo {}
