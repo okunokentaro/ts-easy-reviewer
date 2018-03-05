@@ -2,4 +2,4 @@
 extern crate serde_derive;
 
 pub mod config;
-pub mod file_reader;
+pub mod reader;

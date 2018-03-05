@@ -6,8 +6,7 @@ extern crate toml;
 
 use std::{env, fs, io, path};
 use docopt::Docopt;
-use ts_easy_reviewer::config::Config;
-use ts_easy_reviewer::file_reader::read_file;
+use ts_easy_reviewer::reader::{read_file, read_config};
 
 const USAGE: &'static str = "
 Usage:
@@ -41,21 +40,6 @@ fn visit_dirs(dir: &path::Path, cb: &Fn(&fs::DirEntry)) -> io::Result<()> {
         }
     }
     Ok(())
-}
-
-fn get_config_path(path: &path::PathBuf) -> path::PathBuf {
-    path.join("config.toml")
-}
-
-fn read_config(mut dir: path::PathBuf) -> Result<Config, String> {
-    let config_file_path = get_config_path(&dir);
-    match read_file(&config_file_path) {
-        Ok(val) => toml::from_str(&val).map_err(|e| e.to_string()),
-        Err(_) => {
-            dir.pop();
-            read_config(dir)
-        }
-    }
 }
 
 fn get_path_string(path: &path::PathBuf) -> String {
