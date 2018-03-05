@@ -1,3 +1,5 @@
+mod config;
+
 extern crate docopt;
 #[macro_use]
 extern crate serde_derive;
@@ -6,6 +8,7 @@ extern crate toml;
 use std::{env, fs, io, path};
 use std::io::BufRead;
 use docopt::Docopt;
+use config::Config;
 
 const USAGE: &'static str = "
 Usage:
@@ -62,7 +65,7 @@ fn get_config_path(path: &path::PathBuf) -> path::PathBuf {
     path.join("config.toml")
 }
 
-fn read_config(mut dir: path::PathBuf) -> Result<toml::Value, String> {
+fn read_config(mut dir: path::PathBuf) -> Result<Config, String> {
     let config_file_path = get_config_path(&dir);
     match read_file(&config_file_path) {
         Ok(val) => toml::from_str(&val).map_err(|e| e.to_string()),
@@ -102,7 +105,7 @@ fn main() {
             read_config(pwd)
         });
 
-    println!("{:?}", config);
+    println!("{:?}", config.unwrap().rules);
 
     let args: Args = Docopt::new(USAGE)
         .and_then(|d| d.deserialize())
