@@ -4,9 +4,8 @@ extern crate ts_easy_reviewer;
 extern crate docopt;
 extern crate toml;
 
-use std::env;
 use docopt::Docopt;
-use ts_easy_reviewer::reader::read_config;
+use ts_easy_reviewer::config::get_config;
 use ts_easy_reviewer::reviewer::review_files;
 
 const USAGE: &'static str = "
@@ -29,13 +28,7 @@ struct Args {
 }
 
 fn main() {
-    let config = env::current_dir()
-        .map_err(|e| e.to_string())
-        .and_then(|pwd| {
-            read_config(pwd)
-        });
-
-    println!("{:?}", config.unwrap().rules.unwrap()[0]);
+    let config = get_config().unwrap();
 
     let args: Args = Docopt::new(USAGE)
         .and_then(|d| d.deserialize())
@@ -43,5 +36,5 @@ fn main() {
     println!("args.arg_path: {:?}", args.arg_path);
     println!("args.flag_version: {:?}", args.flag_version);
 
-    review_files()
+    review_files(config)
 }
