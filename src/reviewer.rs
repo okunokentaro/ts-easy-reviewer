@@ -47,7 +47,6 @@ pub fn review_files(path_string: Option<String>, rules: Vec<Rule>) {
             for rule in rules {
                 rule.check(&result);
             }
-            println!("{:?}", &buf_path);
         },
     ).unwrap();
 }
