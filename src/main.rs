@@ -7,6 +7,7 @@ extern crate ts_easy_reviewer;
 use docopt::Docopt;
 use ts_easy_reviewer::config::get_config;
 use ts_easy_reviewer::reviewer::review_files;
+use ts_easy_reviewer::rule::get_rules;
 
 const USAGE: &'static str = "
 Usage:
@@ -36,5 +37,6 @@ fn main() {
     println!("args.arg_path: {:?}", args.arg_path);
     println!("args.flag_version: {:?}", args.flag_version);
 
-    review_files(config)
+    let rules = get_rules(config);
+    review_files(rules)
 }

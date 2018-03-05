@@ -1,20 +1,20 @@
 use std::{fs, io, path};
 use reader::read_file;
-use config::Config;
+use rule::Rule;
 
 fn visit_dirs(
     dir: &path::Path,
-    config: &Config,
-    cb: &Fn(&Config, &fs::DirEntry),
+    rules: &Vec<Rule>,
+    cb: &Fn(&Vec<Rule>, &fs::DirEntry),
 ) -> io::Result<()> {
     if dir.is_dir() {
         for entry in fs::read_dir(dir)? {
             let entry = entry?;
             let path = entry.path();
             if path.is_dir() {
-                visit_dirs(&path, config, cb)?;
+                visit_dirs(&path, rules, cb)?;
             } else {
-                cb(config, &entry);
+                cb(rules, &entry);
             }
         }
     }
@@ -25,11 +25,11 @@ fn get_path_string(path: &path::PathBuf) -> String {
     path.clone().into_os_string().into_string().unwrap()
 }
 
-pub fn review_files(config_: Config) {
+pub fn review_files(rules: Vec<Rule>) {
     visit_dirs(
         path::Path::new("./"),
-        &config_,
-        &|config: &Config, entry: &fs::DirEntry| {
+        &rules,
+        &|rules: &Vec<Rule>, entry: &fs::DirEntry| {
             let buf_path = entry.path();
             let path_string = get_path_string(&buf_path);
 
@@ -41,15 +41,9 @@ pub fn review_files(config_: Config) {
 
             let result = read_file(&buf_path).unwrap();
 
-            match config.rules {
-                Some(ref rules) => {
-                    for rule in rules {
-                        println!("{:?}", rule);
-                    }
-                    Some(())
-                }
-                None => None
-            };
+            for rule in rules {
+                println!("{:?}", rule);
+            }
             println!("{:?}", &buf_path);
             println!("{}", result);
         },
