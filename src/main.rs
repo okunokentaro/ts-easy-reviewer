@@ -1,14 +1,13 @@
-mod config;
-
-extern crate docopt;
 #[macro_use]
 extern crate serde_derive;
+extern crate ts_easy_reviewer;
+extern crate docopt;
 extern crate toml;
 
 use std::{env, fs, io, path};
-use std::io::BufRead;
 use docopt::Docopt;
-use config::Config;
+use ts_easy_reviewer::config::Config;
+use ts_easy_reviewer::file_reader::read_file;
 
 const USAGE: &'static str = "
 Usage:
@@ -42,23 +41,6 @@ fn visit_dirs(dir: &path::Path, cb: &Fn(&fs::DirEntry)) -> io::Result<()> {
         }
     }
     Ok(())
-}
-
-fn read_file(path: &path::Path) -> io::Result<String> {
-    fs::File::open(path).and_then(|file| {
-        let mut buf_file = io::BufReader::new(file);
-
-        let mut buffer = String::new();
-        loop {
-            match buf_file.read_line(&mut buffer) {
-                Ok(0) => break, // EOF
-                Ok(_) => continue,
-                Err(e) => return Err(e),
-            }
-        }
-
-        Ok(buffer)
-    })
 }
 
 fn get_config_path(path: &path::PathBuf) -> path::PathBuf {
@@ -105,7 +87,7 @@ fn main() {
             read_config(pwd)
         });
 
-    println!("{:?}", config.unwrap().rules);
+    println!("{:?}", config.unwrap().rules.unwrap()[0]);
 
     let args: Args = Docopt::new(USAGE)
         .and_then(|d| d.deserialize())
