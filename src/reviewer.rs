@@ -29,24 +29,20 @@ pub fn review_files(path_string: Option<String>, rules: Vec<Rule>) {
     let path_string_ref = path_string.unwrap();
     let path = path::Path::new(&path_string_ref);
 
-    visit_dirs(
-        path,
-        &rules,
-        &|rules: &Vec<Rule>, entry: &fs::DirEntry| {
-            let buf_path = entry.path();
-            let path_string = get_path_string(&buf_path);
+    visit_dirs(path, &rules, &|rules: &Vec<Rule>, entry: &fs::DirEntry| {
+        let buf_path = entry.path();
+        let path_string = get_path_string(&buf_path);
 
-            if path_string.contains(".DS_Store") {
-                return;
-            } else if !path_string.contains(".ts") {
-                return;
-            }
+        if path_string.contains(".DS_Store") {
+            return;
+        } else if !path_string.contains(".ts") {
+            return;
+        }
 
-            let result = read_file(&buf_path).unwrap();
+        let result = read_file(&buf_path).unwrap();
 
-            for rule in rules {
-                rule.check(&result);
-            }
-        },
-    ).unwrap();
+        for rule in rules {
+            rule.check(&result);
+        }
+    }).unwrap();
 }

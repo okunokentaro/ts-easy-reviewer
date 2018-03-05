@@ -5,13 +5,13 @@ use statement_parser::parse;
 #[derive(Debug)]
 pub struct Rule {
     name: String,
-    tokens: Vec<String>
+    tokens: Vec<String>,
 }
 
 impl Rule {
     pub fn new(name: String, statement: String) -> Rule {
         let tokens = parse(&statement);
-        Rule {name, tokens}
+        Rule { name, tokens }
     }
 
     pub fn check(&self, code: &str) {
@@ -28,8 +28,8 @@ impl Rule {
                         if includes_target && self.tokens[6] == "error" {
                             println!("REJECT!!!!!");
                         }
-                    },
-                    _ => ()
+                    }
+                    _ => (),
                 }
             }
         }
@@ -46,8 +46,8 @@ impl Rule {
                         if includes_target && self.tokens[6] == "error" {
                             println!("REJECT!!!!!");
                         }
-                    },
-                    _ => ()
+                    }
+                    _ => (),
                 }
             }
         }
@@ -59,8 +59,6 @@ pub fn get_rules(config: config::Config) -> Vec<Rule> {
 
     toml_rules
         .into_iter()
-        .map(|toml_rule| {
-            Rule::new(toml_rule.name.unwrap(), toml_rule.rule.unwrap())
-        })
+        .map(|toml_rule| Rule::new(toml_rule.name.unwrap(), toml_rule.rule.unwrap()))
         .collect()
 }
