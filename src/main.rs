@@ -29,12 +29,11 @@ struct Args {
 }
 
 fn main() {
-    let config = get_config().unwrap();
-
     let args: Args = Docopt::new(USAGE)
         .and_then(|d| d.deserialize())
         .unwrap_or_else(|e| e.exit());
-    println!("args.arg_path: {:?}", args.arg_path);
+
+    let config = get_config(Some(args.arg_path)).unwrap();
     println!("args.flag_version: {:?}", args.flag_version);
 
     let rules = get_rules(config);
