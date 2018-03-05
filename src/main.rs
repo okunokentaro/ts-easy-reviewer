@@ -7,7 +7,7 @@ extern crate toml;
 use std::env;
 use docopt::Docopt;
 use ts_easy_reviewer::reader::read_config;
-use ts_easy_reviewer::linter::lint_files;
+use ts_easy_reviewer::reviewer::review_files;
 
 const USAGE: &'static str = "
 Usage:
@@ -43,5 +43,5 @@ fn main() {
     println!("args.arg_path: {:?}", args.arg_path);
     println!("args.flag_version: {:?}", args.flag_version);
 
-    lint_files()
+    review_files()
 }

@@ -20,7 +20,7 @@ fn get_path_string(path: &path::PathBuf) -> String {
     path.clone().into_os_string().into_string().unwrap()
 }
 
-pub fn lint_files() {
+pub fn review_files() {
     visit_dirs(path::Path::new("./"), &|entry: &fs::DirEntry| {
         let buf_path = entry.path();
         let path_string = get_path_string(&buf_path);
