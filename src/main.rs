@@ -33,9 +33,11 @@ fn main() {
         .and_then(|d| d.deserialize())
         .unwrap_or_else(|e| e.exit());
 
-    let config = get_config(Some(args.arg_path)).unwrap();
+    let path_string = Some(args.arg_path);
+
+    let config = get_config(&path_string).unwrap();
     println!("args.flag_version: {:?}", args.flag_version);
 
     let rules = get_rules(config);
-    review_files(rules)
+    review_files(path_string, rules)
 }

@@ -1,11 +1,11 @@
 [[rules]]
 name = "rule1"
-rule = "class_implements 'Foo' and includes 'Bar' then ERROR"
+rule = "class_implements 'Foo' and includes 'Bar' then error"
 
 [[rules]]
 name = "rule2"
-rule = "class_extends 'BaseMediator' and import 'component' then ERROR"
+rule = "class_extends 'BaseMediator' and import 'component' then error"
 
 [[rules]]
 name = "rule3"
-rule = "method_returns 'Observable' and not name_matches '\\$$' then ERROR"
+rule = "method_returns 'Observable' and not name_matches '\\$$' then error"

@@ -26,13 +26,13 @@ fn read_config(mut dir: path::PathBuf) -> Result<Config> {
     }
 }
 
-pub fn get_config(path_string: Option<String>) -> Result<Config> {
+pub fn get_config(path_string: &Option<String>) -> Result<Config> {
     match path_string {
-        Some(path_string) => {
+        &Some(ref path_string) => {
             let path = path::PathBuf::from(path_string);
             read_config(path)
         }
-        None => env::current_dir()
+        &None => env::current_dir()
             .map_err(|e| e.to_string())
             .and_then(|pwd| read_config(pwd)),
     }

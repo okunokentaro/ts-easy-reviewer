@@ -25,9 +25,12 @@ fn get_path_string(path: &path::PathBuf) -> String {
     path.clone().into_os_string().into_string().unwrap()
 }
 
-pub fn review_files(rules: Vec<Rule>) {
+pub fn review_files(path_string: Option<String>, rules: Vec<Rule>) {
+    let path_string_ref = path_string.unwrap();
+    let path = path::Path::new(&path_string_ref);
+
     visit_dirs(
-        path::Path::new("./"),
+        path,
         &rules,
         &|rules: &Vec<Rule>, entry: &fs::DirEntry| {
             let buf_path = entry.path();
@@ -42,10 +45,9 @@ pub fn review_files(rules: Vec<Rule>) {
             let result = read_file(&buf_path).unwrap();
 
             for rule in rules {
-                println!("{:?}", rule);
+                rule.check(&result);
             }
             println!("{:?}", &buf_path);
-            println!("{}", result);
         },
     ).unwrap();
 }
