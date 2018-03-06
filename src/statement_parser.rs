@@ -41,7 +41,6 @@ fn get_string(vec_chars: &Vec<char>, begin: usize, end: usize) -> String {
 
 pub fn parse(statement: &str) -> Vec<String> {
     let vec_chars = statement.chars().collect::<Vec<char>>();
-    println!("{}", statement);
 
     let default_cursor = Cursor {
         mode: "statement".to_string(),
